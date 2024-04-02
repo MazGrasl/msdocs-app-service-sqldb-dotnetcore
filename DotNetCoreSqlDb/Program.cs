@@ -1,12 +1,18 @@
 using Microsoft.EntityFrameworkCore;
-using MySQL.Data.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using DotNetCoreSqlDb.Data;
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
+
 // Add database context and cache
 builder.Services.AddDbContext<MyDatabaseContext>(options =>
-    options.UseMySQL(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")));
+    options
+        .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+        .LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableSensitiveDataLogging()
+        .EnableDetailedErrors()
+);
 builder.Services.AddDistributedMemoryCache();
 
 // Add services to the container.
